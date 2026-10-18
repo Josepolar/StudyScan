@@ -1,0 +1,43 @@
+import assert from 'node:assert/strict';
+const origin='http://127.0.0.1:5173';let count=0;
+async function request(role,action,data={},expected=200){const res=await fetch(origin+'/api/study',{method:action?'POST':'GET',headers:{Cookie:`local-role=${role}`,...(action?{'Content-Type':'application/json'}:{})},...(action?{body:JSON.stringify({action,...data})}:{})});const body=await res.json();assert.equal(res.status,expected,JSON.stringify(body));count++;return body;}
+const teacher=await request('teacher');assert.equal(teacher.user.role,'teacher');
+const student=await request('student');assert.equal(student.user.role,'student');
+await request('student','class',{name:'Unauthorized'},403);
+await request('student','inviteTeacher',{email:'no@example.test'},403);
+await request('outsider','ask',{lesson:teacher.lessons[0].id,question:'What is force?'},404);
+await request('student','join',{code:teacher.classes[0].code});
+let joined=await request('student');assert.ok(joined.lessons.length>=3);
+const l=teacher.lessons.find(l=>l.subject==='Science');
+const testLesson={...l,id:'',title:'Verification lesson',content:'Force and acceleration\nForce equals mass times acceleration. F = ma. A larger net force increases acceleration for a fixed mass.',policy:{...l.policy,enabled:true,starts:'',ends:'',blockedTopics:''}};
+let created=await request('teacher','lesson',{lesson:testLesson});testLesson.id=created.id;
+try{
+ await request('student','lesson',{lesson:{...testLesson,title:'Unauthorized edit'}},403);
+ let answer=await request('student','ask',{lesson:testLesson.id,question:'Explain force and acceleration.'});assert.equal(answer.status,teacher.aiReady?'answered':'reference');assert.ok(answer.sources.length>0);
+ await request('student','flag',{id:answer.id});
+ let inbox=await request('teacher');assert.equal(inbox.interactions.find(i=>i.id===answer.id).flagged,1);
+ await request('teacher','review',{id:answer.id,note:'Compare pushing an empty and a full cart.',resolved:true});
+ joined=await request('student');assert.equal(joined.interactions.find(i=>i.id===answer.id).note,'Compare pushing an empty and a full cart.');
+ await request('outsider','flag',{id:answer.id},403);
+ answer=await request('student','ask',{lesson:testLesson.id,question:'Who won the presidential election?'});assert.equal(answer.status,'out-of-scope');
+ await request('teacher','lesson',{lesson:{...testLesson,policy:{...testLesson.policy,enabled:false}}});
+ answer=await request('student','ask',{lesson:testLesson.id,question:'Explain force.'});assert.equal(answer.status,'restricted');
+ await request('teacher','lesson',{lesson:{...testLesson,policy:{...testLesson.policy,starts:'2099-01-01T00:00:00Z'}}});
+ answer=await request('student','ask',{lesson:testLesson.id,question:'Explain force.'});assert.equal(answer.status,'restricted');
+ await request('teacher','lesson',{lesson:{...testLesson,policy:{...testLesson.policy,blockedTopics:'force'}}});
+ answer=await request('student','ask',{lesson:testLesson.id,question:'Explain force.'});assert.equal(answer.status,'restricted');
+ await request('teacher','lesson',{lesson:testLesson});
+ await request('teacher','assignment',{assignment:{id:'verification-activity',lesson:testLesson.id,title:'Independent assessment',instructions:'Work independently',due:'',aiEnabled:false}});
+ answer=await request('student','ask',{lesson:testLesson.id,assignment:'verification-activity',question:'Explain force.'});assert.equal(answer.status,'restricted');
+ await request('teacher','lesson',{lesson:{...testLesson,published:false}});
+ await request('student','ask',{lesson:testLesson.id,question:'Explain force.'},404);
+ await request('teacher','lesson',{lesson:testLesson});
+ const form=new FormData();form.set('lesson',testLesson.id);form.set('file',new File(['A sample resource.'],'verification.txt',{type:'text/plain'}));
+ const upload=await fetch(origin+'/api/files',{method:'POST',body:form,headers:{Cookie:'local-role=teacher'}});assert.equal(upload.status,200);count++;
+ const f=(await request('teacher')).files.find(f=>f.lesson===testLesson.id);assert.ok(f);
+ const resource=await fetch(`${origin}/api/files?id=${f.id}`,{headers:{Cookie:'local-role=student'}});assert.equal(resource.status,200);assert.equal(await resource.text(),'A sample resource.');count++;
+ assert.equal((await fetch(`${origin}/api/files?id=${f.id}`,{headers:{Cookie:'local-role=outsider'}})).status,404);count++;
+ await request('student','progress',{lesson:testLesson.id,completed:true});assert.ok((await request('student')).progress.find(p=>p.lesson===testLesson.id)?.completed);
+ const blocked=await fetch(origin+'/api/study',{method:'POST',headers:{Origin:'https://untrusted.example','Content-Type':'application/json'},body:'{"action":"seed"}'});assert.equal(blocked.status,403);count++;
+}finally{await request('teacher','deleteLesson',{id:testLesson.id});}
+console.log(`PASS: ${count} API checks covering roles, assignment access, source retrieval, flagging, teacher notes, schedules, restricted topics, disabled activities, files, progress, and cross-origin protection.`);
