@@ -1,0 +1,6 @@
+{
+  "framework": null,
+  "buildCommand": "node scripts/build-vercel-demo.mjs",
+  "outputDirectory": "vercel-demo",
+  "headers": [{ "source": "/(.*)", "headers": [{ "key": "X-Content-Type-Options", "value": "nosniff" }, { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }] }]
+}

@@ -1,0 +1,11 @@
+.sites-runtime
+.github-upload-staging
+StudyScan-source.zip
+.env*
+.npm-cache
+.openai
+work
+outputs
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
