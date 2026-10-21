@@ -63,7 +63,7 @@ node scripts/prepare-vercel.mjs
 
 Database verification uses real PostgreSQL in PGlite to check cross-teacher isolation, student assignment boundaries, private resources, submissions/feedback, approval requests, AI permissions/allowances, and membership revocation. Hosted-assistant checks use fixtures to verify request/response contracts and real document extraction. They do not prove live provider access or school-wide capacity.
 
-Apply migrations `supabase/001_accounts.sql` through `008_assistant_followup.sql` in order. Deploy the function with its `index.js`, `core.mjs`, and `documents.mjs`, with JWT verification enabled. The connected Supabase project has received these migrations and the Edge Function.
+Apply migrations `supabase/001_accounts.sql` through `009_school_settings_safe_update.sql` in order. Deploy the function with its `index.js`, `core.mjs`, and `documents.mjs`, with JWT verification enabled. The connected Supabase project has received these migrations and the Edge Function.
 
 Before a school launch, complete a real teacher/student cross-account acceptance run, exercise the actual free provider key and safety endpoint, verify recovery-email delivery if email/password is offered, test backup restoration, and measure the intended concurrent workload against the selected infrastructure plan. These live operational checks remain necessary; automated checks alone do not establish production readiness.
 
