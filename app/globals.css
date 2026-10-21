@@ -2,3 +2,86 @@
 /* Readable interface defaults */
 .sidebar nav button,.button.small,.stat-top,.lesson-info strong,.text-button,.section-heading p,.insight-card p,.question-row strong,.activity-row strong,.class-card p,.table-row strong,.table-row,.chat-intro p,.chat-intro button{font-size:14px}.badge,.lesson-info small,.stat>small,.panel-footer,.question-row small,.activity-row small,.page-footer,.top-date,.breadcrumbs,.assistant-pane header small,.composer>small,.answer-label{font-size:12px}.insight-card p{line-height:1.7}.stat-top{white-space:normal}.lesson-row{min-height:90px}.brand small,.nav-label,.eyebrow,.insight-card .eyebrow,.table-heading{font-size:12px}.brand small{letter-spacing:1px;font-size:10px}.sidebar nav button{padding-left:12px}.page-footer{flex-wrap:wrap}.composer>small{line-height:1.5}.reading-text{overflow-wrap:anywhere}.table-row strong,.assistant-bubble,.student-bubble{overflow-wrap:anywhere}@media(max-width:700px){.lesson-info small{font-size:12px}.stat-top{font-size:13px}.stat-icon{display:none}.stats-grid .stat{padding:16px}.page-heading h1{font-size:26px}.badge{font-size:12px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* StudyScan interface: restrained color, consistent rhythm, readable content. */
+:root{--blue:#2858c6;--ink:#1c293c;--muted:#627084;--line:#e0e5eb;--bg:#f5f6f8;--font:"Segoe UI",Arial,sans-serif}
+body{font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1{font-size:28px;font-weight:650;letter-spacing:-.8px;line-height:1.25}
+h2{font-size:18px;letter-spacing:-.3px}h3{font-weight:600}
+input,select,textarea{border-color:#cfd6df;border-radius:6px;transition:border-color .15s,box-shadow .15s}
+input:hover,select:hover,textarea:hover{border-color:#a7b4c6}
+input:focus,select:focus,textarea:focus{border-color:var(--blue)}
+input::placeholder,textarea::placeholder{color:#7a8595}
+label{font-weight:600;color:#354256}
+.sidebar{width:240px;padding:28px 16px 0;background:#14243b;border-right:0;color:#e7edf5}
+.sidebar .brand{font-size:24px;margin:0 12px 30px;color:#fff;letter-spacing:-.8px}
+.brand-icon{border-radius:8px;box-shadow:none;background:#315fc5}
+.sidebar .brand-accent{color:#fff}.sidebar .brand small{color:#9eafc7;letter-spacing:1.2px;font-size:9px;margin-top:3px}
+.workspace-label{background:#1c2f49;border-color:#30415a;border-radius:7px;margin:0 0 28px;padding:12px;font-size:13px}
+.workspace-label small{color:#a6b6cb;font-size:12px}.school-icon{background:#2a3c56;color:#c5d5ee}
+.nav-label{color:#8fa1bb;font-size:10px;letter-spacing:1.4px;margin:0 12px 10px}
+.sidebar nav{gap:4px}.sidebar nav button{font-size:13px;color:#bcc9da;border-radius:6px;padding:11px 12px;min-height:44px}
+.sidebar nav button svg{width:18px;height:18px;opacity:.85}
+.sidebar nav button:hover{background:#20344f;color:#fff}
+.sidebar nav button.active{background:#2c4465;color:#fff;box-shadow:inset 3px 0 #91b4ff}
+.sidebar nav button b{background:#4267a0}
+.sidebar-bottom{padding-top:28px}.teacher-note{padding:15px 12px;background:transparent;border:0;border-top:1px solid #30415a;border-radius:0}
+.teacher-note>svg{width:19px;height:19px;color:#9cb5db;margin-bottom:8px}.teacher-note strong{color:#d7e1ef;font-size:12px}
+.teacher-note p{color:#9caec7;font-size:12px;line-height:1.65}.profile{border-top:1px solid #30415a;padding:18px 5px}
+.profile strong{color:#e4ebf5}.profile small{color:#9caec7}.profile>a{color:#b2c4dc}.avatar{background:#e5ebf5;color:#39547b}
+.main-shell{margin-left:240px}.topbar{height:68px;padding:0 36px;background:#fff}.breadcrumbs{font-size:12px}.breadcrumbs>span{color:#69778b}
+.breadcrumbs strong{font-weight:600}.top-date{color:#627084;font-size:12px}
+main{padding:32px 36px;max-width:1512px}.page-heading{margin-bottom:28px;align-items:center}.page-heading p{font-size:14px;color:#627084;max-width:720px}
+.eyebrow{font-size:10px;letter-spacing:1.5px;color:#69778a;margin-bottom:9px}
+.button{border-radius:6px;padding:10px 15px;font-size:13px;min-height:40px;font-weight:600;box-shadow:none}
+.button.primary{box-shadow:none}.button.small{font-size:12px;min-height:34px}.text-button{font-size:13px}
+.stats-grid{gap:16px;margin-bottom:24px}.stat{padding:20px 22px;border-radius:8px;box-shadow:0 1px 2px #14243b03}
+.stat-top{font-size:12px;color:#59677b;gap:10px}.stat-icon{width:30px;height:30px;border-radius:6px}
+.stat-top>svg{color:#627a9e;width:18px;height:18px}.stat>strong{font-size:30px;line-height:1.2;font-weight:650;font-variant-numeric:tabular-nums;margin:14px 0 6px;letter-spacing:-.8px}
+.stat>small{color:#6d798b;font-size:12px}.color-2{background:#edf1f7;color:#60789a}.color-3{background:#fbf2e5;color:#a7722d}
+.panel,.material-card,.class-card{border-radius:8px;box-shadow:0 1px 2px #14243b03}
+.section-heading{padding:22px 24px 18px}.section-heading h2{font-size:16px;font-weight:650}.section-heading p{font-size:13px;color:#6c788a}
+.overview-grid{gap:20px;grid-template-columns:minmax(0,1.8fr) minmax(280px,1fr)}
+.subject-icon{width:42px;height:44px;border-radius:7px}.subject-icon svg{width:21px;height:21px}
+.lesson-row{min-height:84px;padding:17px 0}.lesson-row:hover{background:#f8fafc}.lesson-info strong{font-size:14px;font-weight:600}
+.lesson-info small{font-size:12px;color:#6d798b;margin-top:4px}.badge{font-size:11px;border-radius:4px;padding:3px 8px;font-weight:600}
+.blue{background:#edf2fb;color:#3e619d}.green{background:#edf6f1;color:#36765b}.purple{background:#f0edf6;color:#756090}.orange{background:#fcf3e6;color:#96672d}
+.panel-footer{background:#fafbfc;color:#6a788c;font-size:12px;padding:13px 24px}
+.insight-card{background:#eef2f7;border:1px solid #dfe5ed;border-radius:8px;padding:25px}
+.insight-icon{width:36px;height:36px;border-radius:7px;margin-bottom:22px;box-shadow:none;color:#49698f;background:#fff}
+.insight-card .eyebrow{font-size:10px;color:#65768d}.insight-card h2{font-size:23px;line-height:1.3;font-weight:600;color:#263e5e}
+.insight-card p{font-size:14px;line-height:1.75;color:#5d6f86;max-width:none}.insight-card .button{color:#365780;border-color:#cdd7e4;font-size:12px;border-radius:6px}
+.learning-steps{color:#64758d;padding-top:22px;font-size:11px}.learning-steps i{background:#c3cedd}
+.question-row,.activity-row{padding:16px 24px}.question-row:hover,.activity-row:hover{background:#f8fafc}.question-row strong,.activity-row strong{font-size:13px}
+.question-row small,.activity-row small{font-size:12px;color:#6d798b}.quiet-state{color:#779380}.quiet-state strong{color:#43546c;font-size:13px}.quiet-state p{color:#6c798d;font-size:13px}
+.page-footer{font-size:11px;color:#738094;margin-top:32px}.search-box{border-radius:6px;border-color:#d3dae4}.search-box input{font-size:13px}
+.material-grid{gap:20px}.material-card{padding:24px}.material-card:hover{border-color:#b3c2d7;box-shadow:0 3px 12px #182b4508}
+.material-card h2{font-size:19px}.material-card>p{color:#627084;line-height:1.75}.subject-label,.material-meta{color:#65758b}.material-meta{font-size:12px}
+.material-card footer{margin-top:22px}.notice{background:#eef3fa;border-color:#d8e2f0;border-radius:6px;color:#4a607e;font-size:13px}
+.notice p{margin:0}.empty h3{color:#40536f}.empty p{color:#68788f}.question-filters,.secondary-filters{gap:12px}
+.table-heading{color:#68768a;font-size:10px;letter-spacing:.9px;background:#f8fafc}.table-row{font-size:13px;color:#596a80}.table-row strong{font-size:13px;color:#2a3b51}
+.topic-card{border-radius:6px;background:#f8fafc;border:1px solid #e4e8ef}.topic-card strong{font-size:13px}.topic-card small{color:#66758b;line-height:1.6}
+.reading-text p{color:#43536c;line-height:1.9}.lead{color:#596a82}.assistant-pane header small,.composer>small{color:#65758b}
+.assistant-bubble p,.answer-box p{color:#475b76}.chat-intro p{color:#687b95}.chat-intro button{color:#486387;font-size:13px}
+.student-bubble{color:#335580;background:#edf2fa}.answer-label{font-size:10px;color:#61799a}.flag-button{color:#617899}
+.modal{border-radius:10px;box-shadow:0 24px 80px #14243b26}.overlay{backdrop-filter:blur(2px)}
+.admin-panel{padding:24px}.admin-panel+.admin-panel{margin-top:20px}.admin-panel>h2{margin-bottom:8px}.admin-panel>p{font-size:13px;color:#627084}
+.admin-panel>label{max-width:560px;margin-top:24px}.admin-table-wrap{overflow-x:auto;margin:20px -24px 16px}
+.admin-table{width:100%;border-collapse:collapse;min-width:650px;font-size:13px}.admin-table th{text-align:left;font-weight:600;font-size:11px;color:#6a7789;background:#f8fafc;padding:12px 24px;border-block:1px solid var(--line)}
+.admin-table td{padding:17px 24px;border-bottom:1px solid #edf0f4;vertical-align:middle}.admin-table td strong{font-weight:600;display:block;margin-bottom:3px}.admin-table td .muted{font-size:12px}
+.admin-table tbody tr:hover{background:#fbfcfe}.admin-table select{font-size:12px;min-height:35px}.admin-actions{display:flex;gap:8px}
+.admin-settings{max-width:780px}.admin-roles{margin-block:24px}.admin-roles .topic-card{align-items:flex-start;padding:18px;gap:12px}.admin-roles .topic-card>svg{color:#66809f;margin-top:3px}
+.admin-roles .topic-card small{display:block;margin-top:6px}.admin-status{display:inline-flex;gap:6px;align-items:center;color:#397858;font-size:12px;font-weight:600}.admin-status:before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}.admin-status.suspended{color:#a26a32}
+#demo-controls:empty{display:none}#demo-controls{position:relative;z-index:60;background:#fff9ed;border-bottom:1px solid #eadfcb;padding:9px 24px;font:12px/1.5 var(--font);color:#75603d;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#demo-controls>span{flex:1;min-width:220px}#demo-controls button{font-size:11px;border:1px solid #ddcfb7;border-radius:4px;background:transparent;padding:4px 9px;color:#6c5838}
+#demo-controls button:hover{background:#f3ead9}
+@media(min-width:1600px){main{padding:36px 48px}.stat-top{font-size:13px}.badge{font-size:11px}.section-heading p{font-size:13px}.lesson-info strong{font-size:14px}}
+@media(max-width:1200px){.sidebar{width:220px}.main-shell{margin-left:220px}main{padding:28px}.topbar{padding:0 28px}.stat{padding:18px}.overview-grid{grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr)}}
+@media(max-width:950px){.overview-grid{grid-template-columns:1fr}.insight-card{display:flex}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-roles{grid-template-columns:1fr}}
+@media(max-width:700px){.sidebar{width:240px}.main-shell{margin-left:0}.topbar{height:60px;padding:0 18px}main{padding:24px 18px}.page-heading h1{font-size:25px}.page-heading p{font-size:13px}.stats-grid{gap:12px}.stat-top{font-size:12px}.stat>strong{font-size:28px}.stat>small{font-size:11px}.stat-icon{display:grid;width:26px;height:26px}.stat-icon svg{width:15px;height:15px}.stat{padding:16px}.section-heading{padding:18px}.section-heading p{font-size:12px}.lesson-info strong{font-size:13px}.lesson-info small{font-size:11px}.panel-footer{padding:12px 18px;font-size:11px}.admin-panel{padding:18px}.admin-table-wrap{margin-inline:-18px}.admin-table th,.admin-table td{padding:12px 18px}.insight-card{padding:22px}.insight-card h2{font-size:21px}.insight-icon,.learning-steps{display:none}.insight-card .eyebrow{margin-bottom:10px}#demo-controls{padding:8px 16px;gap:7px}#demo-controls>span{flex-basis:100%;font-size:11px}.page-footer{font-size:11px}}
+/* Keep the session notice above navigation at every viewport width. */
+#demo-controls{position:sticky;top:0}
+.sidebar{top:var(--session-bar-height,0px);overflow-y:auto}
+@media(max-width:700px){.topbar{top:var(--session-bar-height,0px)}}
+@media(max-height:800px) and (min-width:701px){.sidebar .teacher-note{display:none}.sidebar-bottom{padding-top:20px}.sidebar{scrollbar-width:thin;scrollbar-color:#40546f #14243b}}
+.sidebar .brand small{white-space:nowrap;letter-spacing:.85px;font-size:8px}
