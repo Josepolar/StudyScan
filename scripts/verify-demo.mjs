@@ -5,7 +5,7 @@ await mkdir('.sites-runtime/demo-tests', { recursive: true });
 await build({ input: 'demo/storage.ts', platform: 'node', output: { file: '.sites-runtime/demo-tests/storage.mjs', format: 'esm' } });
 const storage = new Map();
 globalThis.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key) };
-const { demoRequest } = await import('../.sites-runtime/demo-tests/storage.mjs');
+const { demoRequest,installDemo } = await import('../.sites-runtime/demo-tests/storage.mjs');
 const url = new URL('https://demo.example/api/study');
 async function get() { return (await demoRequest(url)).json(); }
 async function post(action, data = {}) { const response = await demoRequest(url, { method: 'POST', body: JSON.stringify({ action, ...data }) }); return { status: response.status, data: await response.json() }; }
@@ -51,3 +51,23 @@ await post('schoolSettings',{name:'Demo School',aiEnabled:false,blockedTopics:''
 localStorage.setItem('studyscan-demo-role','student');assert.equal((await post('ask',{lesson:motion.id,question:'Explain force.'})).data.status,'restricted');assert.equal((await get()).admin,undefined);
 localStorage.setItem('studyscan-demo-role','super-admin');assert.ok((await get()).admin.audit.length>=4);
 console.log('Super Admin demo verified: protected owner, role updates, suspension, private summaries, school policy, and audit log.');
+// A real authenticated account never takes its role from the public demo selector.
+function element(tag){return {tag,style:{},children:[],textContent:'',appendChild(child){this.children.push(child);},replaceChildren(){this.children=[];},removeAttribute(){}};}
+const controls=element('div');
+globalThis.document={getElementById:()=>controls,createElement:element,addEventListener(){},removeEventListener(){}};
+globalThis.location={origin:'https://demo.example',href:'https://demo.example/'};
+globalThis.window={fetch:async()=>{throw Error('Unexpected network request.');}};
+const account={id:'verified-user-a',name:'Verified Student',email:'student-a@example.test',role:'student',status:'active'};
+let dispose=installDemo({identity:account});
+let signedIn=await (await window.fetch('/api/study')).json();
+assert.equal(signedIn.user.id,account.id);assert.equal(signedIn.user.role,'student');assert.equal(signedIn.lessons.length,3);
+assert.ok(!controls.children.some(c=>c.tag==='button'&&c.textContent==='Super Admin'));
+const answer=await (await window.fetch('/api/study',{method:'POST',body:JSON.stringify({action:'ask',lesson:signedIn.lessons[0].id,question:'Explain force.'})})).json();
+assert.equal(answer.status,'reference');assert.equal((await (await window.fetch('/api/study')).json()).interactions[0].student,account.id);
+dispose();dispose=installDemo({identity:{...account,id:'verified-user-b',email:'student-b@example.test'}});
+assert.equal((await (await window.fetch('/api/study')).json()).interactions.length,0);dispose();
+dispose=installDemo({identity:account});assert.equal((await (await window.fetch('/api/study')).json()).interactions.length,1);dispose();
+let cloudAction='';dispose=installDemo({identity:{...account,id:'real-admin',role:'super-admin'},cloudAdmin:{state:async()=>({accounts:[{...account,id:'real-admin',role:'super-admin'}],audit:[],protectedAccount:'real-admin'}),action:async body=>{cloudAction=body.action;return Response.json({ok:true});}}});
+signedIn=await (await window.fetch('/api/study')).json();assert.equal(signedIn.admin.accounts[0].id,'real-admin');
+await window.fetch('/api/study',{method:'POST',body:JSON.stringify({action:'setRole',id:account.id,role:'teacher'})});assert.equal(cloudAction,'setRole');dispose();
+console.log('Authenticated preview verified: trusted profile identity, no role selector, isolated sample data, request cleanup, and cloud account-management routing.');

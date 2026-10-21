@@ -1,5 +1,7 @@
 # StudyScan
 
+See [AUTH-SETUP.md](AUTH-SETUP.md) for Google/Gmail sign-in, email registration, password recovery, Supabase account permissions, and the boundary between real accounts and sample classroom data.
+
 See [ROLES-AND-DATABASE.md](ROLES-AND-DATABASE.md) for Super Admin, Teacher, and Student permissions and the proposed PostgreSQL/Supabase plan for 1,000 simultaneous users.
 
 See [VERCEL-DEMO.md](VERCEL-DEMO.md) for the browser demonstration hosted on Vercel. It includes teacher/student sample views and browser-local storage; its assistant shows lesson excerpts without live AI.
