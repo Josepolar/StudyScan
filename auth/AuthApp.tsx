@@ -2,15 +2,15 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { BookOpen, ShieldCheck, GraduationCap, ArrowRight, Eye, EyeOff, LoaderCircle, Mail, CheckCircle2, LogOut } from 'lucide-react';
 import StudyScan from '../app/study-scan';
 import { installDemo } from '../demo/storage';
-import { authClient, authConfig, accountProfile, cloudAdminState, cloudAdminAction, type CloudProfile } from './client';
+import { authClient, authConfig, initialAuthError, accountProfile, cloudAdminState, cloudAdminAction, type CloudProfile } from './client';
+import {profileRefreshError} from './callback.mjs';
 type Mode='signin'|'signup'|'forgot'|'reset';
 export default function AuthApp(){
- const [mode,setMode]=useState<Mode>(()=>new URL(location.href).searchParams.get('auth')==='recovery'?'reset':'signin'),[profile,setProfile]=useState<CloudProfile|null>(null),[checking,setChecking]=useState(true),[busy,setBusy]=useState(false),[showPassword,setShowPassword]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState(''),[google,setGoogle]=useState<boolean|null>(null);
+ const [mode,setMode]=useState<Mode>(()=>new URL(location.href).searchParams.get('auth')==='recovery'?'reset':'signin'),[profile,setProfile]=useState<CloudProfile|null>(null),[checking,setChecking]=useState(true),[busy,setBusy]=useState(false),[showPassword,setShowPassword]=useState(false),[error,setError]=useState(initialAuthError),[message,setMessage]=useState(''),[google,setGoogle]=useState<boolean|null>(null);
  useEffect(()=>{
   if(!authClient){setChecking(false);return;}
   const client=authClient;let active=true;let version=0;
-  async function refresh(){const current=++version;try{const account=await accountProfile();if(active&&version===current){setProfile(account);setError('');}}catch(error){if(active&&version===current){setProfile(null);setError(error instanceof Error?error.message:'Sign-in could not be verified. Please try again.');}}finally{if(active&&version===current)setChecking(false);}}
-  const callbackError=new URL(location.href).searchParams.get('error_description');if(callbackError)setError(callbackError.slice(0,180));
+  async function refresh(){const current=++version;try{const account=await accountProfile();if(active&&version===current){setProfile(account);setError(previous=>profileRefreshError(previous,account,null));}}catch(error){if(active&&version===current){setProfile(null);setError(previous=>profileRefreshError(previous,null,error));}}finally{if(active&&version===current)setChecking(false);}}
   void refresh();
   const {data:{subscription}}=client.auth.onAuthStateChange(event=>{if(!active)return;if(event==='PASSWORD_RECOVERY')setMode('reset');if(event==='SIGNED_OUT'){version++;setProfile(null);setChecking(false);setMode('signin');}else setTimeout(()=>{if(active)void refresh();},0);});
   if(authConfig)void fetch(`${authConfig.url}/auth/v1/settings`,{headers:{apikey:authConfig.key}}).then(r=>r.ok?r.json():null).then(settings=>{if(active)setGoogle((settings as {external?:{google?:boolean}}|null)?.external?.google===true);}).catch(()=>{if(active)setGoogle(false);});

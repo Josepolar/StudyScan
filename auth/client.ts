@@ -1,8 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Account } from '../lib/types';
+import { callbackErrorMessage } from './callback.mjs';
 declare const __STUDYSCAN_AUTH__: {url:string;key:string}|null;
 export type CloudProfile = Account & {is_primary_admin:boolean};
 export const authConfig=__STUDYSCAN_AUTH__;
+export const initialAuthError=callbackErrorMessage(location.href);
 export const authClient = authConfig ? createClient(authConfig.url,authConfig.key,{auth:{flowType:'pkce',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}) : null;
 export async function accountProfile():Promise<CloudProfile|null>{
  if(!authClient)return null;
