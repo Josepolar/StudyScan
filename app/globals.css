@@ -85,3 +85,4 @@ main{padding:32px 36px;max-width:1512px}.page-heading{margin-bottom:28px;align-i
 @media(max-width:700px){.topbar{top:var(--session-bar-height,0px)}}
 @media(max-height:800px) and (min-width:701px){.sidebar .teacher-note{display:none}.sidebar-bottom{padding-top:20px}.sidebar{scrollbar-width:thin;scrollbar-color:#40546f #14243b}}
 .sidebar .brand small{white-space:nowrap;letter-spacing:.85px;font-size:8px}
+@media(max-width:700px){.sidebar{top:calc(var(--session-bar-height,0px) + 60px);padding-top:22px}.sidebar .teacher-note{display:none}}
