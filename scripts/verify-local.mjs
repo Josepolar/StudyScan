@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-const origin='http://127.0.0.1:5173';let count=0;
+const origin=process.env.STUDYSCAN_TEST_ORIGIN||'http://127.0.0.1:5191';let count=0;
 async function request(role,action,data={},expected=200){const res=await fetch(origin+'/api/study',{method:action?'POST':'GET',headers:{Cookie:`local-role=${role}`,...(action?{'Content-Type':'application/json'}:{})},...(action?{body:JSON.stringify({action,...data})}:{})});const body=await res.json();assert.equal(res.status,expected,JSON.stringify(body));count++;return body;}
 const teacher=await request('teacher');assert.equal(teacher.user.role,'teacher');
 const student=await request('student');assert.equal(student.user.role,'student');

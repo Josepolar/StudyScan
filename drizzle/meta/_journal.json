@@ -8,6 +8,13 @@
       "when": 1791214114921,
       "tag": "0000_studyscan",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1792589204731,
+      "tag": "0001_roles",
+      "breakpoints": true
     }
   ]
 }

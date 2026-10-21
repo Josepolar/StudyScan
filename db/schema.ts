@@ -2,7 +2,8 @@
 // Add Drizzle tables here when the site actually needs a database.
 // See examples/d1/db/schema.ts for an opt-in example.
 import { sqliteTable, text, integer, index } from 'drizzle-orm/sqlite-core';
-export const profiles = sqliteTable('profiles', { id: text('id').primaryKey(), name: text('name').notNull(), email: text('email').notNull(), role: text('role').notNull().default('student') });
+export const profiles = sqliteTable('profiles', { id: text('id').primaryKey(), name: text('name').notNull(), email: text('email').notNull(), role: text('role').notNull().default('student'), status:text('status').notNull().default('active') });
+export const auditLogs = sqliteTable('audit_logs', { id:text('id').primaryKey(), actor:text('actor').notNull(), action:text('action').notNull(), target:text('target').notNull(), created:text('created').notNull() }, t=>[index('idx_audit_created').on(t.created)]);
 export const settings = sqliteTable('settings', { id: text('id').primaryKey(), value: text('value').notNull() });
 export const classrooms = sqliteTable('classrooms', { id: text('id').primaryKey(), owner: text('owner').notNull(), name: text('name').notNull(), code: text('code').notNull().unique() });
 export const memberships = sqliteTable('memberships', { id: text('id').primaryKey(), classroom: text('classroom').notNull(), student: text('student').notNull() }, t => [index('idx_memberships_student').on(t.student)]);

@@ -39,3 +39,15 @@ assert.equal((await get()).interactions.filter(i => i.lesson === lesson.id).leng
 localStorage.setItem('studyscan-demo-role', 'student');
 assert.equal((await post('ask', { lesson: lesson.id, question: 'Explain voltage.' })).status, 400);
 console.log('Demo flow verified: roles, sample lessons, source retrieval, flags, review notes, restrictions, progress, and deletion.');
+assert.equal((await post('setRole',{id:'demo-student',role:'super-admin'})).status,400);
+localStorage.setItem('studyscan-demo-role','super-admin');
+const admin=await get();assert.equal(admin.user.role,'super-admin');assert.equal(admin.interactions.length,0);assert.equal(admin.lessons.length,0);assert.equal(admin.admin.accounts.length,4);
+assert.equal((await post('setRole',{id:'demo-admin',role:'student'})).status,400);
+assert.equal((await post('setRole',{id:'demo-new-account',role:'teacher'})).status,200);
+assert.equal((await post('setAccountStatus',{id:'demo-student',status:'suspended'})).status,200);
+localStorage.setItem('studyscan-demo-role','student');assert.equal((await demoRequest(url)).status,403);
+localStorage.setItem('studyscan-demo-role','super-admin');await post('setAccountStatus',{id:'demo-student',status:'active'});
+await post('schoolSettings',{name:'Demo School',aiEnabled:false,blockedTopics:''});
+localStorage.setItem('studyscan-demo-role','student');assert.equal((await post('ask',{lesson:motion.id,question:'Explain force.'})).data.status,'restricted');assert.equal((await get()).admin,undefined);
+localStorage.setItem('studyscan-demo-role','super-admin');assert.ok((await get()).admin.audit.length>=4);
+console.log('Super Admin demo verified: protected owner, role updates, suspension, private summaries, school policy, and audit log.');

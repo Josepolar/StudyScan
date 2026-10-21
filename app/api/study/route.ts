@@ -1,5 +1,6 @@
 import { aiInfo, aiAvailable, generateAnswer } from '../../../lib/ai';
-import { all, one, run, db, identity, visibleLessons, lessonFor, runtime, HttpError, seed } from '../../../lib/server';
+import { all, one, run, db, identity, visibleLessons, lessonFor, runtime, HttpError, seed, schoolPolicy } from '../../../lib/server';
+import { adminActions, adminAction, adminState } from '../../../lib/admin';
 import { availability, blockedTopic, passages } from '../../../lib/learning';
 import { defaultPolicy, type Lesson } from '../../../lib/types';
 export const dynamic='force-dynamic';
@@ -7,7 +8,7 @@ const response=(data:unknown,status=200)=>Response.json(data,{status,headers:{'C
 const text=(v:unknown,max=500)=>typeof v==='string'?v.trim().slice(0,max):'';
 const fail=(e:unknown)=>{if(e instanceof HttpError)return response({error:e.message},e.status);console.error('StudyScan operation failed',e instanceof Error?e.message:'Unknown error');return response({error:'StudyScan could not complete this request. Your changes have not been confirmed. Please try again.'},500);};
 export async function GET(){try{
- const user=await identity();const lessons=await visibleLessons(user);const ids=new Set(lessons.map(l=>l.id));
+ const user=await identity();if(user.role==='super-admin')return response({user,admin:await adminState(user),lessons:[],classes:[],students:[],assignments:[],interactions:[],progress:[],files:[],aiReady:false,model:aiInfo(runtime()).model});const lessons=await visibleLessons(user);const ids=new Set(lessons.map(l=>l.id));
  const classes=user.role==='teacher'?await all('SELECT * FROM classrooms WHERE owner = ?',user.id):await all('SELECT c.id,c.name FROM classrooms c JOIN memberships m ON c.id=m.classroom WHERE m.student = ?',user.id);
  const students=user.role==='teacher'?await all('SELECT p.id,p.name,p.email,m.classroom FROM profiles p JOIN memberships m ON m.student=p.id JOIN classrooms c ON c.id=m.classroom WHERE c.owner = ?',user.id):[];
  const assignments=(await all<{id:string;lesson:string;data:string}>('SELECT * FROM assignments')).filter(a=>ids.has(a.lesson)).map(a=>({...JSON.parse(a.data),id:a.id,lesson:a.lesson}));
@@ -19,9 +20,9 @@ export async function POST(request:Request){try{
  const origin=request.headers.get('origin');if(origin&&origin!==new URL(request.url).origin)throw new HttpError(403,'Cross-origin requests are not allowed.');
  if(Number(request.headers.get('content-length')||0)>250000)throw new HttpError(413,'This request is too large.');
  const user=await identity();const b=await request.json() as Record<string, any>;const action=text(b.action);const teacher=()=>{if(user.role!=='teacher')throw new HttpError(403,'Only teachers can make this change.');};
+ if(adminActions.has(action)){await adminAction(user,b);return response({ok:true});}
  if(action==='seed'){teacher();await seed(user);return response({ok:true});}
  if(action==='class'){teacher();const name=text(b.name,100);if(!name)throw new HttpError(400,'Enter a class name.');await run('INSERT INTO classrooms (id,owner,name,code) VALUES (?,?,?,?)',crypto.randomUUID(),user.id,name,crypto.randomUUID().slice(0,8).toUpperCase());}
- else if(action==='inviteTeacher'){teacher();const owner=await one<{value:string}>('SELECT value FROM settings WHERE id = ?', 'school-owner');if(owner?.value!==user.id)throw new HttpError(403,'Only the school owner can approve teachers.');const email=text(b.email,200).toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))throw new HttpError(400,'Enter a valid email.');await run('INSERT OR REPLACE INTO settings (id,value) VALUES (?,?)','teacher-email:'+email,'approved');}
  else if(action==='join'){if(user.role!=='student')throw new HttpError(400,'Class codes are for student accounts.');const c=await one<{id:string}>('SELECT id FROM classrooms WHERE code = ?',text(b.code).toUpperCase());if(!c)throw new HttpError(404,'That class code was not found.');await run('INSERT OR IGNORE INTO memberships (id,classroom,student) VALUES (?,?,?)',`${c.id}:${user.id}`,c.id,user.id);}
  else if(action==='lesson'){
  teacher();const input=b.lesson||{};const id=text(input.id)||crypto.randomUUID();const existing=await one<{owner:string}>('SELECT owner FROM lessons WHERE id = ?',id);if(existing&&existing.owner!==user.id)throw new HttpError(403,'You cannot edit this lesson.');
@@ -41,7 +42,7 @@ export async function POST(request:Request){try{
  else if(action==='ask'){
  const l=await lessonFor(user,text(b.lesson));const question=text(b.question,2000);if(!question)throw new HttpError(400,'Enter your question.');
  const recent=await one<{n:number}>('SELECT COUNT(*) AS n FROM interactions WHERE student = ? AND created > ?',user.id,new Date(Date.now()-60000).toISOString());if((recent?.n||0)>=12)throw new HttpError(429,'Please wait a minute before asking more questions.');
- let denied=availability(l.policy);const assignment=text(b.assignment);if(assignment){const a=await one<{lesson:string;data:string}>('SELECT lesson,data FROM assignments WHERE id = ?',assignment);if(!a||a.lesson!==l.id)throw new HttpError(400,'Choose an assignment from this lesson.');if(!JSON.parse(a.data).aiEnabled)denied='Your teacher has disabled AI for this activity. Please complete it independently.';}
+ const school=await schoolPolicy();let denied=!school.aiEnabled?'Your school administrator has paused AI assistance.':blockedTopic({...l.policy,blockedTopics:school.blockedTopics},question)?'Your school administrator has restricted assistance on this topic.':availability(l.policy);const assignment=text(b.assignment);if(assignment){const a=await one<{lesson:string;data:string}>('SELECT lesson,data FROM assignments WHERE id = ?',assignment);if(!a||a.lesson!==l.id)throw new HttpError(400,'Choose an assignment from this lesson.');if(!JSON.parse(a.data).aiEnabled)denied='Your teacher has disabled AI for this activity. Please complete it independently.';}
  const history=await all<{question:string;answer:string}>('SELECT question,answer FROM interactions WHERE student = ? AND lesson = ? AND COALESCE(assignment,\'\') = ? ORDER BY created DESC LIMIT 4',user.id,l.id,assignment);
  const followup=/^(why|how so|what about|can you|could you|explain (it|that)|i (still|don.t)|give (me )?an example)/i.test(question);
  const source=passages(l,question+(followup?' '+history.map(h=>h.question).join(' '):''));let status='answered';let answer='';let citations:{label:string;text:string}[]=[];
