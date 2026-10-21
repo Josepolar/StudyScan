@@ -9,7 +9,7 @@ globalThis.fetch=async(input,init={})=>{
  if(url.endsWith('/auth/v1/user'))return response({id:'00000000-0000-4000-8000-000000000001',email_confirmed_at:'2026-01-01'});
  if(url.endsWith('/rpc/studyscan_actor'))return response([{role:'student',status:'active'}]);
  if(url.endsWith('/rpc/studyscan_ai_begin'))return response({id:'00000000-0000-4000-8000-000000000002',blocked:null,lesson:{title:'Circuits',topic:'Voltage',content:'Voltage is potential difference.',policy:{mode:'Hints and Guidance',directAnswers:false}},history:[]});
- if(url.endsWith('/rpc/studyscan_ai_finish')){finished.push(body);return response(null);}
+ if(url.endsWith('/rpc/studyscan_ai_finish')){finished.push(body);return new Response(null,{status:204});}
  if(url.endsWith('/openai/v1/models'))return response({data:[{id:'openai/gpt-oss-20b'}]});
  if(url==='https://api.groq.com/openai/v1/chat/completions'){
   if(providerFailure)return Response.json({error:{message:'private upstream diagnostic'}},{status:429});
@@ -35,3 +35,4 @@ try{
  const tooLarge=await handler(request({action:'status',padding:'x'.repeat(17000)}));assert.equal(tooLarge.status,400);assert.match((await tooLarge.json()).error,/too large/);
  console.log('Edge endpoint verified: authentication gate, allowed origins, real-profile shape handling, free-only provider routing, validated citations, safety refusal, quota failure handling, and bounded request bodies.');
 }finally{globalThis.fetch=nativeFetch;delete globalThis.Deno;}
+
