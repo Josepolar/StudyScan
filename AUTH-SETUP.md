@@ -16,7 +16,7 @@ set role='super-admin',is_primary_admin=true
 where email='YOUR_VERIFIED_ADMIN_EMAIL';
 ```
 
-There is no hardcoded administrator, default password, first-visitor promotion, or role selection during signup. Real authenticated sessions have no demo role-switch buttons. Only the separate public sample preview at `/?demo=1` has simulated role switching.
+There is no hardcoded administrator, default password, first-visitor promotion, or role selection during signup. Real authenticated sessions have no demo role-switch buttons. The production build does not expose simulated role switching. See PRODUCTION-SETUP.md for the current shared classroom architecture.
 
 ## Public build configuration
 
@@ -48,11 +48,11 @@ The frontend checks provider availability. When Google is disabled, it explains 
 
 Keep email confirmation enabled. Configure custom SMTP before inviting broader school use; Supabase's built-in mail service has recipient and rate limits. Never claim an account was created solely from a confirmation screen: verify that email confirmation, sign-in, and the account profile all succeed.
 
-## Scope of this version
+## Shared classroom data
 
-Authentication and profile/role administration are real Supabase operations. Lessons, class settings, assignments, files, and conversations remain sample data stored in the current browser. Each authenticated user has a separate sample storage namespace; resetting sample data preserves their account. Administrators' account lists and account audit records come from Supabase; classroom counts/settings remain samples. Live AI is still separate and is not enabled by this integration.
+The signed-in application stores classroom records in Supabase PostgreSQL and learning resources in private Supabase Storage. Apply migrations 002 through 008 after the account migration. Teacher/student permissions are checked in database functions and storage policies. See [PRODUCTION-SETUP.md](PRODUCTION-SETUP.md) for school onboarding, free-only AI setup, and remaining launch checks.
 
-This does not complete the future migration of classroom data or certify capacity for 1,000 simultaneous users. The existing authenticated Cloudflare API remains a separate implementation; the Vercel build serves this browser app and Supabase integration.
+The legacy Cloudflare/local-server implementation is separate from the current Vercel/Supabase deployment. Capacity for 1,000 simultaneous users has not been validated.
 
 ## Verification
 

@@ -1,11 +1,9 @@
 # StudyScan
 
-See [AUTH-SETUP.md](AUTH-SETUP.md) for Google/Gmail sign-in, email registration, password recovery, Supabase account permissions, and the boundary between real accounts and sample classroom data.
+School learning workspace with Google/email authentication, Super Admin/Teacher/Student roles, shared Supabase classrooms and private resources, assignments and feedback, teacher-controlled assistance, and Scout the study owl.
 
-See [ROLES-AND-DATABASE.md](ROLES-AND-DATABASE.md) for Super Admin, Teacher, and Student permissions and the proposed PostgreSQL/Supabase plan for 1,000 simultaneous users.
+See [PRODUCTION-SETUP.md](PRODUCTION-SETUP.md) for the current architecture, school onboarding, free-only Groq setup, verification, and remaining launch checks. Live inference needs a private Groq Free key and school authorization; free-plan capacity is limited.
 
-See [VERCEL-DEMO.md](VERCEL-DEMO.md) for the browser demonstration hosted on Vercel. It includes teacher/student sample views and browser-local storage; its assistant shows lesson excerpts without live AI.
+See [AUTH-SETUP.md](AUTH-SETUP.md) for Google OAuth and recovery-email configuration. [EVALUATION-PLAN.md](EVALUATION-PLAN.md) describes the proposed academic evaluation.
 
-See [STUDYSCAN-GUIDE.md](STUDYSCAN-GUIDE.md) for setup, features, verification, deployment status, and limitations.
-
-See [EVALUATION-PLAN.md](EVALUATION-PLAN.md) for the proposed academic evaluation protocol.
+Older demo/local-server guides describe the previous prototype and are not the deployed application's data architecture.
