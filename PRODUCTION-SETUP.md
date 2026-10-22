@@ -59,6 +59,7 @@ node scripts/verify-cloud-assistant.mjs
 node scripts/verify-edge.mjs
 node scripts/build-vercel-demo.mjs
 node scripts/prepare-vercel.mjs
+node scripts/verify-public-site.mjs
 ```
 
 Database verification uses real PostgreSQL in PGlite to check cross-teacher isolation, student assignment boundaries, private resources, submissions/feedback, approval requests, AI permissions/allowances, and membership revocation. Hosted-assistant checks use fixtures to verify request/response contracts and real document extraction. They do not prove live provider access or school-wide capacity.
