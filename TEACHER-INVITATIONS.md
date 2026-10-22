@@ -29,6 +29,12 @@ Official instructions: [Google app passwords](https://support.google.com/mail/an
 5. Recipient signs in with a verified, matching Google identity and clicks **Accept invitation**. Database authorization checks the hash, email, Google identity, account status, inviter's current authority, delivery state, expiry, and revocation before atomically granting Teacher access.
 6. Resend rotates the token and resets the 7-day expiry. Old links stop working. A 1-minute resend cooldown, 10 sends/hour per admin, and 30 sends/hour school-wide limit abuse. Accepted invitations cannot be replayed to restore a demoted Teacher role.
 
+## If an invitation email does not arrive
+
+After migration `011_account_teacher_invitations.sql`, a successfully sent invitation is also available inside the invited account's workspace. The teacher can open StudyScan directly and sign in with the exact invited Google account. A **Review invitation** notice appears above the workspace; reviewing and choosing **Accept teacher invitation** explicitly grants Teacher access. Merely signing in or viewing the notice never changes a role. There is no public invitation lookup and no student access-request form.
+
+The server resolves the recipient from the authenticated, verified email and matching verified Google identity, never a supplied email. The same 7-day expiry, revocation, successful send, active administrator, active recipient, and single-use rules apply. Failed or still-sending invitations are not offered. Token links continue working as before. Resending rotates the email token; an authenticated account still sees only its current active invitation. This fallback removes dependence on inbox placement for acceptance; it does not fix or bypass Gmail filtering or browser security warnings. Do not ask recipients to bypass those warnings.
+
 Only admins can list/revoke invitations. The browser never receives stored token hashes or email credentials. Invite tokens are not returned in send responses or written to audit records. Admin list displays the latest 200 invitations. Historical access requests remain in the database for recordkeeping but cannot be submitted, reviewed for elevation, or retrieved through the current workspace API.
 
 ## Verification

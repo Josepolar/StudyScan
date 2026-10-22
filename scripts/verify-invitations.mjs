@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {PGlite} from '@electric-sql/pglite';
 const db=new PGlite();
 await db.exec(`create role anon;create role authenticated;create role service_role;create schema auth;create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz,raw_user_meta_data jsonb default '{}');create table auth.identities(user_id uuid,provider text,identity_data jsonb);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to authenticated;grant execute on function auth.uid() to authenticated;create schema storage;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);alter table storage.objects enable row level security;grant usage on schema storage to authenticated;grant select,insert,delete on storage.objects to authenticated;`);
-for(const file of ['001_accounts.sql','002_classroom.sql','003_storage_ai.sql','004_classroom_management.sql','005_lesson_loading.sql','006_student_ai_authorization.sql','007_free_ai_allowances.sql','008_assistant_followup.sql','009_school_settings_safe_update.sql','010_teacher_invitations.sql'])await db.exec(await readFile('supabase/'+file,'utf8'));
+for(const file of ['001_accounts.sql','002_classroom.sql','003_storage_ai.sql','004_classroom_management.sql','005_lesson_loading.sql','006_student_ai_authorization.sql','007_free_ai_allowances.sql','008_assistant_followup.sql','009_school_settings_safe_update.sql','010_teacher_invitations.sql','011_account_teacher_invitations.sql'])await db.exec(await readFile('supabase/'+file,'utf8'));
 const ids={};for(const [index,name] of ['owner','teacher','student','wrong','new','suspended'].entries()){
  ids[name]=`00000000-0000-4000-8000-${String(index+1).padStart(12,'0')}`;
  await db.query('insert into auth.users(id,email,email_confirmed_at) values($1,$2,now())',[ids[name],name+'@gmail.com']);
@@ -48,4 +48,36 @@ await db.exec('reset role');await db.query("update public.studyscan_teacher_invi
 await db.exec('reset role');await db.query("update public.studyscan_profiles set status='active' where id=$1",[ids.owner]);
 const used=Number((await db.query("select count(*) as count from public.studyscan_account_audit where action='sendTeacherInvite'")).rows[0].count);for(let n=used;n<10;n++)await service('reserve',{id:crypto.randomUUID(),email:`quota${n}@gmail.com`,hash});await assert.rejects(()=>service('reserve',{id:crypto.randomUUID(),email:'limit@gmail.com',hash}),/Hourly invitation limit/);
 console.log('Teacher invitations verified in PostgreSQL: admin-only sending, blocked legacy elevation/request routes, Google identity/email binding, explicit acceptance, hashed single-use tokens, delivery failure, rotation, cooldown, expiry, revocation, protected existing roles, and private invitation records.');
+// Finding an invitation in the workspace must never grant access by itself.
+async function accountInvitation(action,id=null){return (await db.query('select public.studyscan_account_invitation($1,$2) as value',[action,id])).rows[0].value;}
+await actor('new');assert.equal((await accountInvitation('pending')).id,fresh);
+await actor('wrong');assert.equal(await accountInvitation('pending'),null);
+await assert.rejects(()=>accountInvitation('accept',fresh),/No active invitation/);
+await actor('new');await assert.rejects(()=>accountInvitation('accept',crypto.randomUUID()),/No active invitation/);
+assert.equal((await db.query('select to_jsonb(public.studyscan_actor()) as value')).rows[0].value.role,'student');
+await db.exec('reset role');await db.query('delete from auth.identities where user_id=$1',[ids.new]);
+await actor('new');assert.equal(await accountInvitation('pending'),null);await assert.rejects(()=>accountInvitation('accept',fresh),/Google sign-in/);
+await db.exec('reset role');await db.query("insert into auth.identities values($1,'google',$2)",[ids.new,{email:'new@gmail.com',email_verified:false}]);
+await actor('new');assert.equal(await accountInvitation('pending'),null);
+await db.exec('reset role');await db.query('update auth.identities set identity_data=$1 where user_id=$2',[{email:'new@gmail.com',email_verified:true},ids.new]);
+for(const change of ["delivery='failed'","delivery='sending'","expires=now()-interval '1 second'","revoked_at=now()"]){
+ await db.exec('reset role');await db.query('update public.studyscan_teacher_invites set '+change+' where id=$1',[fresh]);
+ await actor('new');assert.equal(await accountInvitation('pending'),null);await assert.rejects(()=>accountInvitation('accept',fresh),/No active invitation/);
+ await db.exec('reset role');await db.query("update public.studyscan_teacher_invites set delivery='sent',expires=now()+interval '1 day',revoked_at=null where id=$1",[fresh]);
+}
+await db.exec('reset role');await db.query("update public.studyscan_profiles set status='suspended' where id=$1",[ids.owner]);
+await actor('new');assert.equal(await accountInvitation('pending'),null);await assert.rejects(()=>accountInvitation('accept',fresh),/No active invitation/);
+await db.exec('reset role');await db.query("update public.studyscan_profiles set status='active' where id=$1",[ids.owner]);await db.query("update public.studyscan_profiles set status='suspended' where id=$1",[ids.new]);
+await actor('new');await assert.rejects(()=>accountInvitation('accept',fresh),/active school account/i);
+await db.exec('reset role');await db.query("update public.studyscan_profiles set status='active' where id=$1",[ids.new]);
+await actor('new');const own=await accountInvitation('pending');assert.equal(own.email,'new@gmail.com');assert.equal(own.token_hash,undefined);
+assert.equal((await accountInvitation('accept',fresh)).accepted,true);
+assert.equal((await db.query('select to_jsonb(public.studyscan_actor()) as value')).rows[0].value.role,'teacher');
+assert.equal(await accountInvitation('pending'),null);
+await actor('owner');await mutate('setRole',{id:ids.new,role:'student'});
+await actor('new');assert.equal(await accountInvitation('pending'),null);await assert.rejects(()=>accountInvitation('accept',fresh),/No active invitation/);
+await assert.rejects(()=>invitation('accept',{id:fresh,token}),/already been used/);
+await actor('owner');assert.equal(await accountInvitation('pending'),null);
+await db.exec('reset role;set role anon');await assert.rejects(()=>accountInvitation('pending'),/permission denied/);
+console.log('Account invitations verified: exact verified Google identity, explicit acceptance only, private lookup, wrong recipient and ID, delivery failure, expiry, revocation, inactive admin/student, replay prevention, and anonymous denial.');
 await db.close();
