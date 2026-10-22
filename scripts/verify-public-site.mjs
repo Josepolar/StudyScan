@@ -14,7 +14,7 @@ for(const path of ['/','/client.js','/about.html','/privacy.html']){
  const body=await response.text();
  assert.doesNotMatch(body,/\b(?:gsk_[a-zA-Z0-9]{20,}|sb_secret_[a-zA-Z0-9_-]{10,})\b/,'Private provider keys must not be published');
  if(path==='/')assert.deepEqual([...body.matchAll(/<script[^>]*src=["']([^"']+)/g)].map(match=>match[1]),['/client.js']);
- if(path==='/client.js')assert.equal(body,await readFile('vercel-demo/client.js','utf8'),'Live bundle must match this release');
+ if(path==='/client.js'){assert.equal(body,await readFile('vercel-demo/client.js','utf8'),'Live bundle must match this release');for(const removed of ['Student preview','Back to teacher','Are you a teacher?','Request teacher access','Preapprove a known teacher'])assert.ok(!body.includes(removed),removed+' must not be in the production client');}
 }
 for(const path of ['/.env','/.git/config'])assert.equal((await fetch(origin+path)).status,404,`${path} must not be served`);
 console.log('Public deployment verified: shared security headers, expected script bundle, public information pages, no detected private key patterns, and inaccessible configuration files. This is not a complete security audit or a Safe Browsing clearance.');

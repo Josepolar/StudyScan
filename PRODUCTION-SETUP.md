@@ -2,15 +2,15 @@
 
 ## Current architecture
 
-Vercel serves the signed-in web application. Supabase Auth handles Google and email accounts. PostgreSQL stores school settings, roles, classes, memberships, lessons, activity submissions, teacher feedback, progress, teacher requests, and assistant conversations. Supabase Storage holds private learning resources. The `study-assistant` Edge Function handles document extraction and hosted inference.
+Vercel serves the signed-in web application. Supabase Auth handles Google and email accounts. PostgreSQL stores school settings, roles, classes, memberships, lessons, activity submissions, teacher feedback, progress, teacher invitations, and assistant conversations. Supabase Storage holds private learning resources. The `study-assistant` Edge Function handles document extraction and hosted inference.
 
 Authenticated classrooms no longer use browser-local sample records. The public `?demo=1` shortcut no longer enables a simulated account. An isolated local showcase is available to developers through `node scripts/build-vercel-demo.mjs --preview`; it is excluded from the production bundle.
 
 ## School onboarding
 
 1. The designated owner signs in and is promoted through a trusted project operation. There are no default admin passwords or automatic first-user promotion rules.
-2. Teachers sign in and submit a Teacher access request, or the owner preapproves a known teacher's verified email.
-3. The owner checks the person's teaching role with the school and approves or declines the request. Decisions are visible in the applicant's account. This workflow does not send notification emails.
+2. The owner verifies the person's teaching role with the school and sends an invitation from Teacher invitations. The recipient can be an existing Student or new to StudyScan; they must use their actual Google account email.
+3. The teacher opens the emailed link, signs in through the matching Google account, and explicitly accepts. Opening a link alone does not elevate access. Invitations expire in 7 days and can be resent or revoked. Resending invalidates the previous token. Existing Teachers retain their roles. Student-initiated requests, historical email preapprovals, direct Teacher promotion, and the Teacher-side Student preview controls are disabled.
 4. Teachers create classes and share join codes with signed-in students.
 5. Teachers create lessons, import accessible PDF/Word/PowerPoint/TXT/Markdown text, review the extracted text, configure assistance, select classes/students, and publish.
 6. Students join their classes and use assigned lessons, submit activities, track reviewed lessons, and read teacher feedback. Teachers review submissions and flagged conversations.
@@ -57,6 +57,8 @@ node scripts/verify-auth.mjs
 node scripts/verify-classroom.mjs
 node scripts/verify-cloud-assistant.mjs
 node scripts/verify-edge.mjs
+node scripts/verify-invitations.mjs
+node scripts/verify-invitation-email.mjs
 node scripts/build-vercel-demo.mjs
 node scripts/prepare-vercel.mjs
 node scripts/verify-public-site.mjs
@@ -64,7 +66,7 @@ node scripts/verify-public-site.mjs
 
 Database verification uses real PostgreSQL in PGlite to check cross-teacher isolation, student assignment boundaries, private resources, submissions/feedback, approval requests, AI permissions/allowances, and membership revocation. Hosted-assistant checks use fixtures to verify request/response contracts and real document extraction. They do not prove live provider access or school-wide capacity.
 
-Apply migrations `supabase/001_accounts.sql` through `009_school_settings_safe_update.sql` in order. Deploy the function with its `index.js`, `core.mjs`, and `documents.mjs`, with JWT verification enabled. The connected Supabase project has received these migrations and the Edge Function.
+Apply migrations `supabase/001_accounts.sql` through `010_teacher_invitations.sql` in order. Deploy `study-assistant` with its `index.js`, `core.mjs`, and `documents.mjs`, and `teacher-invitations` with its `index.js` and `handler.mjs`, with JWT verification enabled. See [TEACHER-INVITATIONS.md](TEACHER-INVITATIONS.md) for private Gmail configuration and verification.
 
 Before a school launch, complete a real teacher/student cross-account acceptance run, exercise the actual free provider key and safety endpoint, verify recovery-email delivery if email/password is offered, test backup restoration, and measure the intended concurrent workload against the selected infrastructure plan. These live operational checks remain necessary; automated checks alone do not establish production readiness.
 

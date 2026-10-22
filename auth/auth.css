@@ -20,3 +20,5 @@
 .auth-error,.auth-message{padding:12px 14px;font-size:13px;line-height:1.7;border-radius:6px;overflow-wrap:anywhere;margin-bottom:18px}.auth-error{color:#9c3030;background:#fff4f3;border:1px solid #f0d2cf}.auth-message{color:#275a49;background:#f1f8f4;border:1px solid #cee3d8;display:flex;align-items:flex-start;gap:9px}.auth-message svg{margin-top:3px;flex-shrink:0}
 @media(max-width:850px){.auth-shell{grid-template-columns:1fr}.auth-story{padding:24px}.auth-story-copy,.auth-story-footer{display:none}.auth-story .brand{font-size:23px}.auth-main{padding:40px 24px;justify-content:flex-start;min-height:calc(100vh - 88px)}.auth-card h2{font-size:26px}.auth-card{max-width:400px}}
 @media(prefers-reduced-motion:reduce){.auth-shell *{transition:none!important}}
+
+.invitation-page{max-width:740px;margin:40px auto;padding:24px}.invitation-page .inline{flex-wrap:wrap}.invitation-page h1{font-size:28px}.invitation-page .eyebrow{margin-top:24px}

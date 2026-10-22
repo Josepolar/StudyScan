@@ -50,7 +50,7 @@ Keep email confirmation enabled. Configure custom SMTP before inviting broader s
 
 ## Shared classroom data
 
-The signed-in application stores classroom records in Supabase PostgreSQL and learning resources in private Supabase Storage. Apply migrations 002 through 008 after the account migration. Teacher/student permissions are checked in database functions and storage policies. See [PRODUCTION-SETUP.md](PRODUCTION-SETUP.md) for school onboarding, free-only AI setup, and remaining launch checks.
+The signed-in application stores classroom records in Supabase PostgreSQL and learning resources in private Supabase Storage. Apply migrations 002 through 010 after the account migration. Teacher/student permissions are checked in database functions and storage policies. See [PRODUCTION-SETUP.md](PRODUCTION-SETUP.md) for school onboarding, free-only AI setup, and remaining launch checks.
 
 The legacy Cloudflare/local-server implementation is separate from the current Vercel/Supabase deployment. Capacity for 1,000 simultaneous users has not been validated.
 
