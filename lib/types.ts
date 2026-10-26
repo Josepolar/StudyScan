@@ -1,6 +1,6 @@
 export type Policy = { enabled:boolean; mode:string; directAnswers:boolean; starts:string; ends:string; restrictions:string; blockedTopics:string; instructions:string };
 export type Lesson = { id:string; title:string; subject:string; topic:string; grade:string; quarter:string; description:string; content:string; classIds:string[]; studentIds:string[]; published:boolean; policy:Policy; updated?:string };
-export type Assignment = { id:string; lesson:string; title:string; instructions:string; due:string; aiEnabled:boolean };
+export type Assignment = { id:string; lesson:string; title:string; instructions:string; due:string; aiEnabled:boolean; submissionType?:'written'|'file'; maxPoints?:number; fileTypes?:string[] };
 export type Interaction = { id:string; student:string; studentName:string; lesson:string; assignment:string|null; question:string; answer:string; sources:{label:string;text:string}[]; status:string; flagged:number; resolved:number; note:string; created:string };
 export type Role = 'super-admin' | 'teacher' | 'student';
 export type Account = { id:string; name:string; email:string; role:Role; status:'active'|'suspended' };
@@ -9,6 +9,6 @@ export type AuditEntry = { id:string; actor:string; action:string; target:string
 export type TeacherInvite={id:string;email:string;created:string;expires:string;delivery:'sending'|'sent'|'failed';status:'pending'|'accepted'|'expired'|'revoked'};
 export type AdminState = { accounts:Account[]; policy:SchoolPolicy; audit:AuditEntry[]; totals:{lessons:number;classes:number;questions:number;flagged:number}; protectedAccount:string; aiUsageUsd?:number;aiRequestsToday?:number; invitations?:TeacherInvite[];invitationMailReady?:boolean };
 export type TeacherRequest={id:string;account:string;name:string;email:string;school:string;subjects:string;status:string;reason:string;created:string};
-export type Submission={id:string;assignment:string;student:string;studentName:string;body:string;feedback:string;reviewed:boolean;created:string;updated:string};
+export type Submission={id:string;assignment:string;student:string;studentName:string;body:string;feedback:string;reviewed:boolean;score?:number|null;gradedAt?:string|null;filePath?:string|null;fileName?:string|null;fileType?:string|null;fileSize?:number|null;created:string;updated:string};
 export type State = { production?:boolean;providerReady?:boolean; school?:{name:string;aiEnabled:boolean}; teacherRequests?:TeacherRequest[]; submissions?:Submission[]; user:{id:string;name:string;email:string;role:string}; lessons:Lesson[]; classes:{id:string;name:string;code?:string}[]; students:{id:string;name:string;email:string;classroom:string;aiApproved?:boolean}[]; assignments:Assignment[]; interactions:Interaction[]; progress:{lesson:string;completed:number}[]; files:{id:string;lesson:string;name:string;size:number}[]; aiReady:boolean; model:string; admin?:AdminState };
 export const defaultPolicy:Policy = { enabled:true, mode:'Hints and Guidance', directAnswers:false, starts:'', ends:'', restrictions:'Do not complete graded activities for students. Encourage students to explain their thinking.', blockedTopics:'', instructions:'' };
